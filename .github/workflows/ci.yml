@@ -1,0 +1,54 @@
+name: Maven CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar el repositorio
+      - name: Checkout del código
+        uses: actions/checkout@v4 # Actualizado a la última versión
+
+      # Paso 2: Configurar JDK
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven 
+
+      # 3. Ejecutar los plugins
+      - name: Build and Test
+        run: mvn clean verify
+
+      # 4. Ejecutar Checkstyle
+      - name: Checkstyle Analysis
+        run: mvn checkstyle:checkstyle
+        continue-on-error: true
+
+      # 5. Ejecutar PMD
+      - name: PMD Analysis
+        run: mvn pmd:check
+        continue-on-error: true
+
+      # 6. Generar reporte de cobertura con JaCoCo
+      - name: Generate Coverage Report
+        run: mvn jacoco:report
+
+      # Paso 7: Subir artefactos generados
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Maven-Reports
+          path: |
+            target/site/jacoco/jacoco.xml
+            target/checkstyle-result.xml
+            target/pmd.xml
