@@ -13,7 +13,8 @@ public class Libro {
     }
 
     public void prestar() {
-        if (!disponible) throw new IllegalStateException("Libro no disponible");
+        if (!disponible)
+            throw new IllegalStateException("Libro no esta disponible");
         disponible = false;
     }
 
